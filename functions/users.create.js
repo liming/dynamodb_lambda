@@ -1,12 +1,12 @@
 'use strict';
 
-const uuid = require('uuid');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const AWS = require('aws-sdk');
+const uuid = require('uuid');
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.handler = (event, context, callback) => {
-  const timestamp = new Date().getTime();
   const data = JSON.parse(event.body);
 
   createUser(data, callback);
@@ -34,18 +34,16 @@ const createUser = (data, callback) => {
     },
   };
 
-  dynamoDb.put(params, (err) => {
+  return dynamoDb.put(params, (err) => {
     if (err) {
-      console.error(err);
-
       return callback(null, {
         statusCode: err.statusCode || 501,
         headers: { 'Content-Type': 'text/plain' },
-        body: 'Could not create new user: ' + err.message,
+        body: `Could not create new user: ${err.message}`,
       });
     }
 
-    callback(null, {
+    return callback(null, {
       statusCode: 200,
       body: JSON.stringify(params.Item),
     });

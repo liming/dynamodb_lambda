@@ -1,4 +1,5 @@
-const { expect } = require('@jest/globals');
+'use strict'
+
 const aws = require('aws-sdk');
 const lambdaFn = require('../functions/users.create');
 
