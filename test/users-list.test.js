@@ -1,7 +1,7 @@
 'use strict';
 
 const aws = require('aws-sdk');
-const lambdaFn = require('../functions/users.list');
+const lambdaFn = require('../functions/users-list');
 
 jest.mock('aws-sdk', () => {
   const mDocumentClient = { scan: jest.fn() };

@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
 const aws = require('aws-sdk');
-const lambdaFn = require('../functions/users.create');
+const lambdaFn = require('../functions/users-create');
 
 // The solution is from stackoverflow:
 // https://stackoverflow.com/questions/64564233/how-to-mock-aws-dynamodb-in-jest-for-serverless-nodejs-lambda
@@ -39,7 +39,7 @@ describe('Create user', () => {
       expect(result).toBeTruthy();
       expect(result.statusCode).toEqual(200);
       expect(result.body).toBeTruthy();
-      
+
       const user = JSON.parse(result.body);
 
       expect(user).toHaveProperty('id');

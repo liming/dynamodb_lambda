@@ -27,7 +27,7 @@ provider:
 
 functions:
   create:
-    handler: functions/users.create.handler
+    handler: functions/users-create.handler
     events:
       - http:
           path: users
@@ -35,7 +35,7 @@ functions:
           cors: true
 
   list:
-    handler: functions/users.list.handler
+    handler: functions/users-list.handler
     events:
       - http:
           path: users
@@ -49,14 +49,6 @@ resources:
       Properties:
         AttributeDefinitions:
           - AttributeName: id
-            AttributeType: S
-          - AttributeName: firstName
-            AttributeType: S
-          - AttributeName: lastName
-            AttributeType: S
-          - AttributeName: credentials
-            AttributeType: S
-          - AttributeName: email
             AttributeType: S
         KeySchema:
           - AttributeName: id

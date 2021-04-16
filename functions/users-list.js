@@ -11,15 +11,15 @@ module.exports.handler = (event, context, callback) => {
 
 const listUser = (options, callback) => {
   const params = {
-    TableName: process.env.DYNAMODB_TABLE,
+    TableName: process.env.USERS_TABLE,
   };
 
-  dynamoDb.scan(params, (error, result) => {
-    if (error) {
+  dynamoDb.scan(params, (err, result) => {
+    if (err) {
       return callback(null, {
-        statusCode: error.statusCode || 501,
+        statusCode: err.statusCode || 501,
         headers: { 'Content-Type': 'text/plain' },
-        body: "Couldn't fetch the users.",
+        body: `Couldn't fetch the users: ${err.message}`,
       });
     }
 
