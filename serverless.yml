@@ -1,9 +1,10 @@
 service: dynamodb-lambda
 
-frameworkVersion: "2"
+frameworkVersion: '2'
 
 custom:
-  tableName: "users-table-${self:provider.stage}"
+  userTableName: 'users-table-${self:provider.stage}'
+  uniqueTableName: 'uniques-table-${self:provider.stage}'
 
 provider:
   name: aws
@@ -11,19 +12,35 @@ provider:
   lambdaHashingVersion: 20201221
   stage: dev
   region: ap-southeast-2
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - Fn::GetAtt: [UsersTable, Arn]
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    USERS_TABLE: ${self:custom.userTableName}
+    UNIQUES_TABLE: ${self:custom.uniqueTableName}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+          Condition:
+            ForAllValues:StringNotLike:
+              dynamodb:Attributes:
+                - credentials
+        - Effect: Allow
+          Action:
+            - dynamodb:UpdateItem
+            - dynamodb:PutItem
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+          Condition:
+            ForAllValues:StringEquals:
+              dynamodb:Attributes:
+                - credentials
 
 functions:
   create:
@@ -56,4 +73,17 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.userTableName}
+    UniquesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: value
+            AttributeType: S
+        KeySchema:
+          - AttributeName: value
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.uniqueTableName}

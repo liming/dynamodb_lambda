@@ -15,7 +15,7 @@ module.exports.handler = (event, context, callback) => {
 const createUser = (data, callback) => {
   // validate input data
   // ideally this should be done in API gateway so lambdas does not have to be invoked
-  if (!data || !data.email || !data.credentials) {
+  if (!data || !data.email || !data.username || !data.credentials) {
     return callback(null, {
       statusCode: 400,
       headers: { 'Content-Type': 'text/plain' },
@@ -23,18 +23,59 @@ const createUser = (data, callback) => {
     });
   }
 
-  const params = {
-    TableName: process.env.USERS_TABLE,
-    Item: {
-      id: uuid.v1(),
-      firstName: data.firstName,
-      lastName: data.firstName,
-      email: data.email,
-      credentials: data.credentials,
-    },
+  const userItem = {
+    id: uuid.v1(),
+    username: data.username,
+    firstName: data.firstName,
+    lastName: data.firstName,
+    email: data.email,
+    credentials: data.credentials,
   };
 
-  return dynamoDb.put(params, (err) => {
+  const transactItems = [
+    {
+      Put: {
+        TableName: process.env.USERS_TABLE,
+        // check not exists before (no user with this ID)
+        ConditionExpression: 'attribute_not_exists(#pk)',
+        ExpressionAttributeNames: {
+          '#pk': 'id',
+        },
+        // the attributes
+        Item: userItem,
+      },
+    },
+    {
+      Put: {
+        TableName: process.env.UNIQUES_TABLE,
+        // check not exists before (no user with this email)
+        ConditionExpression: 'attribute_not_exists(#pk)',
+        ExpressionAttributeNames: {
+          '#pk': 'value',
+        },
+        // the item attributes
+        Item: {
+          value: `UNIQUE#EMAIL:${data.email}`,
+        },
+      },
+    },
+    {
+      Put: {
+        TableName: process.env.UNIQUES_TABLE,
+        // check not exists before (no user with this email)
+        ConditionExpression: 'attribute_not_exists(#pk)',
+        ExpressionAttributeNames: {
+          '#pk': 'value',
+        },
+        // the item attributes
+        Item: {
+          value: `UNIQUE#USERNAME:${data.username}`,
+        },
+      },
+    },
+  ];
+
+  return dynamoDb.transactWrite({ TransactItems: transactItems }, (err) => {
     if (err) {
       return callback(null, {
         statusCode: err.statusCode || 501,
@@ -45,7 +86,7 @@ const createUser = (data, callback) => {
 
     return callback(null, {
       statusCode: 200,
-      body: JSON.stringify(params.Item),
+      body: JSON.stringify(userItem),
     });
   });
 };
