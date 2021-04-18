@@ -12,6 +12,8 @@ module.exports.handler = (event, context, callback) => {
 const listUser = (options, callback) => {
   const params = {
     TableName: process.env.USERS_TABLE,
+    // do not read credentials
+    ProjectionExpression: 'id, username, email, firstName, lastName',
   };
 
   dynamoDb.scan(params, (err, result) => {

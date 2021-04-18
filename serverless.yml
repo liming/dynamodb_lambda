@@ -22,23 +22,11 @@ provider:
           Action:
             - dynamodb:Query
             - dynamodb:Scan
-            - dynamodb:GetItem
             - dynamodb:PutItem
-            - dynamodb:UpdateItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
           Condition:
             ForAllValues:StringNotLike:
-              dynamodb:Attributes:
-                - credentials
-        - Effect: Allow
-          Action:
-            - dynamodb:UpdateItem
-            - dynamodb:PutItem
-          Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
-          Condition:
-            ForAllValues:StringEquals:
               dynamodb:Attributes:
                 - credentials
 
