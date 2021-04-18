@@ -2,6 +2,25 @@
 
 This task is not fully completed because of the limitation of time. I'm pretty new to serverless application. Selecting this DynamoDB + Lambda is to learn DynamoDB and KMS.
 
+## Usage
+
+```bash
+$ yarn install
+$ yarn test // there is a problem in a unit test describe below
+$ serverless deploy
+```
+
+## Dependencies
+
+Before deploy, need to generate a KMS key id and put the into parameter store with key "dynamodb-lambda/dev/kmskey"
+
+## Test endpoints
+
+```bash
+POST - https://nolhiq3t7j.execute-api.ap-southeast-2.amazonaws.com/dev/users
+GET - https://nolhiq3t7j.execute-api.ap-southeast-2.amazonaws.com/dev/users
+```
+
 ## Walk through
 
 1. [DONE] Created a serverless framework application.
@@ -11,7 +30,8 @@ This task is not fully completed because of the limitation of time. I'm pretty n
 5. [DONE] Encryped password using KMS with CMK. Saved key ID ARN in SSM.
 6. [DONE] Lambda functions are available via API Gateway endpoint.
 7. [DONE] + [FIXME] Wrote the unit test. But didn't use aws-sdk-mock, which is not under active development. One of the test case stacked at KMS.encrypt() function. Something wrong with my mock function but not sure why. (users-create.test.js mKMS.encrypt.mockImplementationOnce((_, callback) => callback(null, newUser.credentials));)
-8. [TODO] + [QUESTION] Don't have time to complete JSON:API. We need to use endpoint to compose the location or links for JSON:API, but I don't know how to get endpoint in lambda. I suppose we can get such information from API gateway but don't have enough time to continue.
+8. [DONE] Use ```yarn run coverage``` to generate coverage report
+9. [TODO] + [QUESTION] Don't have time to complete JSON:API. We need to use endpoint to compose the location or links for JSON:API, but I don't know how to get endpoint in lambda. I suppose we can get such information from API gateway but don't have enough time to continue.
 
 ## Notes
 

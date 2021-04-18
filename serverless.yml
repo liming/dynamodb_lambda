@@ -5,7 +5,7 @@ frameworkVersion: '2'
 custom:
   userTableName: 'users-table-${self:provider.stage}'
   uniqueTableName: 'uniques-table-${self:provider.stage}'
-  KMSKeyId: ${ssm:/dynamodb-lambda/dev/kmskey}
+  KMSKeyId: ${ssm:/dynamodb-lambda/${self:provider.stage}/kmskey}
 
 provider:
   name: aws
