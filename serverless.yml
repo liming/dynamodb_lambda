@@ -5,6 +5,7 @@ frameworkVersion: '2'
 custom:
   userTableName: 'users-table-${self:provider.stage}'
   uniqueTableName: 'uniques-table-${self:provider.stage}'
+  KMSKeyId: ${ssm:/dynamodb-lambda/dev/kmskey}
 
 provider:
   name: aws
@@ -15,6 +16,7 @@ provider:
   environment:
     USERS_TABLE: ${self:custom.userTableName}
     UNIQUES_TABLE: ${self:custom.uniqueTableName}
+    KMS_KEY_ID: ${self:custom.KMSKeyId}
   iam:
     role:
       statements:
@@ -25,10 +27,10 @@ provider:
             - dynamodb:PutItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
-          Condition:
-            ForAllValues:StringNotLike:
-              dynamodb:Attributes:
-                - credentials
+        - Effect: Allow
+          Action:
+            - kms:Encrypt
+          Resource: ${self:custom.KMSKeyId}
 
 functions:
   create:
