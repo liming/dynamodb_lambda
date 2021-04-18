@@ -16,8 +16,8 @@ module.exports.handler = (event, context, callback) => {
 };
 
 const createUser = async (data) => {
-  // validate input data
-  // ideally this should be done in API gateway so lambdas does not have to be invoked
+  // validate input data (should also validate type but skip for demo)
+  // TODO: ideally this should be done in API gateway so lambdas does not have to be invoked
   if (!data || !data.email || !data.username || !data.credentials) {
     return {
       statusCode: 400,
