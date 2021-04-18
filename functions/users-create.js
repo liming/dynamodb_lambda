@@ -100,7 +100,7 @@ const saveUser = (userItem) => {
       }
 
       return resolve({
-        statusCode: 200,
+        statusCode: 201,
         body: JSON.stringify(userItem),
       });
     });

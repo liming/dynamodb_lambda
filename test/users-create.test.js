@@ -7,13 +7,18 @@ const lambdaFn = require('../functions/users-create');
 // https://stackoverflow.com/questions/64564233/how-to-mock-aws-dynamodb-in-jest-for-serverless-nodejs-lambda
 // It looks like a better solution than aws-sdk-mock, which is not actively maintained
 jest.mock('aws-sdk', () => {
+  // DynamoDB mock
   const mDocumentClient = { transactWrite: jest.fn() };
   const mDynamoDB = { DocumentClient: jest.fn(() => mDocumentClient) };
 
-  return { DynamoDB: mDynamoDB };
+  // KMS mock
+  const mKMS = jest.fn(() => ({ encrypt: jest.fn() }));
+
+  return { DynamoDB: mDynamoDB, KMS: mKMS };
 });
 
 const mDynamoDb = new aws.DynamoDB.DocumentClient();
+const mKMS = new aws.KMS();
 
 describe('Create user', () => {
   const newUser = {
@@ -34,6 +39,7 @@ describe('Create user', () => {
     };
 
     mDynamoDb.transactWrite.mockImplementationOnce((_, callback) => callback(null, newUser));
+    mKMS.encrypt.mockImplementationOnce((_, callback) => callback(null, newUser.credentials));
 
     lambdaFn.handler(evt, jest.fn(), (err, result) => {
       expect(err).toBeNull();
